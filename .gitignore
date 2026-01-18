@@ -14,3 +14,6 @@ __debug_bin
 /custom
 /.custom
 /run.sh
+/deploy.sh
+/deploy-quick.sh
+/deploy-simple.sh
