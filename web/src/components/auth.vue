@@ -82,14 +82,15 @@
             <n-form-item-row label="用户名" path="username">
                 <n-input
                     v-model:value="registerForm.username"
-                    placeholder="用户名注册后无法修改"
+                    placeholder="3-12位字母或数字"
+                    @input="handleUsernameInput"
                 />
             </n-form-item-row>
             <n-form-item-row label="密码" path="password">
                 <n-input
                     type="password"
                     show-password-on="mousedown"
-                    placeholder="密码不少于6位"
+                    placeholder="6-16位字符"
                     v-model:value="registerForm.password"
                     @keyup.enter.prevent="handleRegister"
                 />
@@ -266,15 +267,43 @@ watch(showRegisterModal, (newVal) => {
   }
 });
 
+const handleUsernameInput = (value: string) => {
+  // 只保留字母和数字
+  registerForm.username = value.replace(/[^a-zA-Z0-9]/g, '');
+};
+
 const registerRule = {
-  username: {
-    required: true,
-    message: '请输入账户名',
-  },
-  password: {
-    required: true,
-    message: '请输入密码',
-  },
+  username: [
+    {
+      required: true,
+      message: '请输入用户名',
+    },
+    {
+      validator: (rule: FormItemRule, value: string) => {
+        if (!value) return true;
+        if (value.length < 3 || value.length > 12) {
+          return false;
+        }
+        return /^[a-zA-Z0-9]+$/.test(value);
+      },
+      message: '用户名为3-12位字母或数字',
+      trigger: 'blur',
+    },
+  ],
+  password: [
+    {
+      required: true,
+      message: '请输入密码',
+    },
+    {
+      validator: (rule: FormItemRule, value: string) => {
+        if (!value) return true;
+        return value.length >= 6 && value.length <= 16;
+      },
+      message: '密码长度为6-16位',
+      trigger: 'blur',
+    },
+  ],
   repassword: [
     {
       required: true,
