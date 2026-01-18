@@ -18,6 +18,7 @@ import (
 	"github.com/rocboss/paopao-ce/internal/servants/base"
 	"github.com/rocboss/paopao-ce/pkg/convert"
 	"github.com/rocboss/paopao-ce/pkg/xerror"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -61,6 +62,15 @@ type CreateTweetReq struct {
 }
 
 type CreateTweetResp ms.PostFormated
+
+type UpdateTweetReq struct {
+	BaseInfo        `json:"-" binding:"-"`
+	ID              int64              `json:"id" binding:"required"`
+	Contents        []*PostContentItem `json:"contents" binding:"required"`
+	AttachmentPrice int64              `json:"attachment_price"`
+}
+
+type UpdateTweetResp ms.PostFormated
 
 type DeleteTweetReq struct {
 	BaseInfo `json:"-" binding:"-"`
@@ -304,6 +314,17 @@ func (r *CreateTweetReq) Bind(c *gin.Context) error {
 	return bindAny(c, r)
 }
 
+func (r *UpdateTweetReq) Bind(c *gin.Context) error {
+	logrus.Infof("UpdateTweetReq Bind - Raw body: %v", c.Request.Body)
+	err := bindAny(c, r)
+	if err != nil {
+		logrus.Errorf("UpdateTweetReq Bind error: %v", err)
+	} else {
+		logrus.Infof("UpdateTweetReq Bind success - ID: %d, Contents len: %d, User: %v", r.ID, len(r.Contents), r.User != nil)
+	}
+	return err
+}
+
 func (r *CreateCommentReplyReq) Bind(c *gin.Context) error {
 	r.ClientIP = c.ClientIP()
 	return bindAny(c, r)
@@ -324,6 +345,14 @@ func (r *CreateTweetResp) Render(c *gin.Context) {
 	c.Set(AuditHookCtxKey, &AuditMetaInfo{
 		Style: AuditStyleUserTweet,
 		Id:    r.ID,
+	})
+}
+
+func (r *UpdateTweetResp) Render(c *gin.Context) {
+	c.JSON(http.StatusOK, &joint.JsonResp{
+		Code: 0,
+		Msg:  "success",
+		Data: r,
 	})
 }
 

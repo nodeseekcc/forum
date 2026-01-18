@@ -205,7 +205,7 @@ All notable changes to paopao-ce are documented in this file.
     CopyrightTop: "2023 paopao.info"
     CopyrightLeft: "Roc's Me"
     CopyrightLeftLink: ""
-    CopyrightRight: "泡泡(PaoPao)开源社区"
+    CopyrightRight: "话题(PaoPao)开源社区"
     CopyrightRightLink: "https://www.paopao.info"
   ...
   ```

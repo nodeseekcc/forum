@@ -1,28 +1,44 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
     path: '/',
     name: 'home',
     meta: {
-      title: '广场',
+      title: '首页',
       keepAlive: true,
     },
     component: () => import('@/views/Home.vue'),
   },
   {
-    path: '/post',
+    path: '/post/:id',
     name: 'post',
     meta: {
-      title: '泡泡详情',
+      title: '帖子',
     },
     component: () => import('@/views/Post.vue'),
   },
   {
-    path: '/topic',
-    name: 'topic',
+    path: '/post/:id/edit',
+    name: 'editPost',
+    meta: {
+      title: '编辑帖子',
+    },
+    component: () => import('@/views/EditPost.vue'),
+  },
+  {
+    path: '/topics',
+    name: 'topics',
     meta: {
       title: '话题',
+    },
+    component: () => import('@/views/Topic.vue'),
+  },
+  {
+    path: '/topic/:id',
+    name: 'topic',
+    meta: {
+      title: '话题详情',
     },
     component: () => import('@/views/Topic.vue'),
   },
@@ -38,12 +54,12 @@ const routes = [
     path: '/profile',
     name: 'profile',
     meta: {
-      title: '主页',
+      title: '我的',
     },
     component: () => import('@/views/Profile.vue'),
   },
   {
-    path: '/u',
+    path: '/u/:username',
     name: 'user',
     meta: {
       title: '用户详情',
@@ -51,7 +67,7 @@ const routes = [
     component: () => import('@/views/User.vue'),
   },
   {
-    path: '/messages',
+    path: '/messages/:id?',
     name: 'messages',
     meta: {
       title: '消息',
@@ -113,12 +129,23 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title} | 泡泡 - 一个清新文艺的微社区`;
+  if (to.name === 'home') {
+    document.title = 'NodeSeek - A place for lovely people';
+  } else {
+    document.title = `${to.meta.title} | NodeSeek - A place for lovely people`;
+  }
+  
+  // 设置页面描述
+  const metaDescription = document.querySelector('meta[name="description"]');
+  if (metaDescription) {
+    metaDescription.setAttribute('content', 'NodeSeek is a place for people who love web development, hosting, vps / server and other geek things');
+  }
+  
   next();
 });
 

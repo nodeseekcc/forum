@@ -73,11 +73,11 @@ Alipay:
   AppPublicCertFile: "custom/alipay/AppCertPublicKey.crt" 
 CacheIndex:
   MaxUpdateQPS: 100             # 最大添加/删除/更新Post的QPS, 设置范围[10, 10000], 默认100
-SimpleCacheIndex: # 缓存泡泡广场消息流
+SimpleCacheIndex: # 缓存话题广场消息流
   MaxIndexSize: 200             # 最大缓存条数
   CheckTickDuration: 60         # 循环自检查每多少秒一次
   ExpireTickDuration: 300       # 每多少秒后强制过期缓存, 设置为0禁止强制使缓存过期
-BigCacheIndex: # 使用BigCache缓存泡泡广场消息流
+BigCacheIndex: # 使用BigCache缓存话题广场消息流
   MaxIndexPage: 1024            # 最大缓存页数，必须是2^n, 代表最大同时缓存多少页数据
   Verbose: False                # 是否打印cache操作的log
   ExpireInSecond: 300           # 多少秒(>0)后强制过期缓存
@@ -195,6 +195,6 @@ WebProfile:
   CopyrightTop: "2023 paopao.info"
   CopyrightLeft: "Roc's Me"
   CopyrightLeftLink: ""
-  CopyrightRight: "泡泡(PaoPao)开源社区"
+  CopyrightRight: "话题(PaoPao)开源社区"
   CopyrightRightLink: "https://www.paopao.info"
   

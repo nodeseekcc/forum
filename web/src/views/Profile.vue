@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="主页" />
+        <main-nav title="我的" />
 
         <n-list
             class="main-content-wrap profile-wrap"
@@ -59,7 +59,7 @@
                             </router-link>
                         </span>
                         <span class="info-item">
-                            泡泡&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.tweets_count) }}
+                            话题&nbsp;&nbsp;{{ prettyQuoteNum(store.state.userInfo.tweets_count) }}
                         </span>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
             </div>
             <!-- </n-spin> -->
             <n-tabs class="profile-tabs-wrap" type="line" animated @update:value="changeTab">
-                <n-tab-pane name="post" tab="泡泡"></n-tab-pane>
+                <n-tab-pane name="post" tab="话题"></n-tab-pane>
                 <n-tab-pane name="comment" tab="评论"></n-tab-pane>
                 <n-tab-pane name="highlight" tab="亮点"></n-tab-pane>
                 <n-tab-pane name="media" tab="图文"></n-tab-pane>
@@ -192,11 +192,11 @@
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多话题了', error: '加载出错' }" @infinite="nextPage()">
                 <template #spinner>
                     <div class="load-more-wrap">
                         <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? '没有更多泡泡了' : '加载更多' }}</span>
+                        <span class="load-more-spinner">{{ noMore ? '没有更多话题了' : '加载更多' }}</span>
                     </div>
                 </template>
             </InfiniteLoading>
@@ -284,9 +284,6 @@ const handleUserAction = (item: 'setting') => {
     case 'setting':
       router.push({
         name: 'setting',
-        query: {
-          t: new Date().getTime(),
-        },
       });
       break;
     default:

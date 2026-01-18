@@ -16,6 +16,7 @@ import (
 	"github.com/afocus/captcha"
 	"github.com/gofrs/uuid/v5"
 	api "github.com/rocboss/paopao-ce/auto/api/v1"
+	"github.com/rocboss/paopao-ce/internal/conf"
 	"github.com/rocboss/paopao-ce/internal/core/ms"
 	"github.com/rocboss/paopao-ce/internal/model/web"
 	"github.com/rocboss/paopao-ce/internal/servants/base"
@@ -94,6 +95,13 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, error) {
 	if _disallowUserRegister {
 		return nil, web.ErrDisallowUserRegister
 	}
+	
+	// Verify Turnstile token
+	if _, err := conf.VerifyTurnstile(req.TurnstileToken, ""); err != nil {
+		logrus.Errorf("Turnstile verification failed: %v", err)
+		return nil, web.ErrUserRegisterFailed
+	}
+	
 	// 用户名检查
 	if err := s.validUsername(req.Username); err != nil {
 		return nil, err
@@ -124,6 +132,12 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, error) {
 }
 
 func (s *pubSrv) Login(req *web.LoginReq) (*web.LoginResp, error) {
+	// Verify Turnstile token
+	if _, err := conf.VerifyTurnstile(req.TurnstileToken, ""); err != nil {
+		logrus.Errorf("Turnstile verification failed: %v", err)
+		return nil, xerror.UnauthorizedAuthFailed
+	}
+	
 	ctx := context.Background()
 	user, err := s.Ds.GetUserByUsername(req.Username)
 	if err != nil {

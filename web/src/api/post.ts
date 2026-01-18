@@ -121,6 +121,17 @@ export const createPost = (
   });
 };
 
+/** 更新动态 */
+export const updatePost = (
+  data: NetParams.PostCreatePost & { id: number },
+): Promise<NetReq.PostCreatePost> => {
+  return request({
+    method: 'put',
+    url: '/v1/post',
+    data,
+  });
+};
+
 /** 删除动态 */
 export const deletePost = (
   data: NetParams.PostDeletePost,

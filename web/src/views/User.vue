@@ -65,7 +65,7 @@
                                 </router-link>
                             </span>
                             <span class="info-item">
-                                泡泡&nbsp;&nbsp;{{ prettyQuoteNum(user.tweets_count || 0) }}
+                                话题&nbsp;&nbsp;{{ prettyQuoteNum(user.tweets_count || 0) }}
                             </span>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                 <whisper-add-friend :show="showAddFriendWhisper" :user="user" @success="addFriendWhisperSuccess" />
             
                 <n-tabs v-if="!userLoading" class="profile-tabs-wrap" type="line" animated :value="pageType" @update:value="changeTab">
-                    <n-tab-pane name="post" tab="泡泡"></n-tab-pane>
+                    <n-tab-pane name="post" tab="话题"></n-tab-pane>
                     <n-tab-pane name="comment" tab="评论"></n-tab-pane>
                     <n-tab-pane name="highlight" tab="亮点"></n-tab-pane>
                     <n-tab-pane name="media" tab="图文"></n-tab-pane>
@@ -202,11 +202,11 @@
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多话题了', error: '加载出错' }" @infinite="nextPage()">
                 <template #spinner>
                     <div class="load-more-wrap">
                         <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? '没有更多泡泡了' : '加载更多' }}</span>
+                        <span class="load-more-spinner">{{ noMore ? '没有更多话题了' : '加载更多' }}</span>
                     </div>
                 </template>
             </InfiniteLoading>
@@ -274,7 +274,7 @@ const commentList = ref<Item.PostProps[]>([]);
 const highlightList = ref<Item.PostProps[]>([]);
 const mediaList = ref<Item.PostProps[]>([]);
 const starList = ref<Item.PostProps[]>([]);
-const username = ref(route.query.s || '');
+const username = ref(route.params.username || '');
 const page = ref(+(route.query.p as string) || 1);
 const pageType = ref<'post' | 'comment' | 'highlight' | 'media' | 'star'>(
   'post',
@@ -754,9 +754,6 @@ const handleUserAction = (
     case 'setting':
       router.push({
         name: 'setting',
-        query: {
-          t: new Date().getTime(),
-        },
       });
       break;
     default:
@@ -875,11 +872,11 @@ onMounted(() => {
 watch(
   () => ({
     path: route.path,
-    query: route.query,
+    params: route.params,
   }),
   (to, from) => {
-    if (from.path === '/u' && to.path === '/u') {
-      username.value = route.query.s || '';
+    if (from.path.startsWith('/u/') && to.path.startsWith('/u/')) {
+      username.value = route.params.username || '';
       reset();
       loadUser();
     }

@@ -375,6 +375,11 @@ func (s *tweetManageSrv) CreatePostStar(postID, userID int64) (*ms.PostStar, err
 	return star.Create(s.db)
 }
 
+func (s *tweetManageSrv) DeletePostContentByPostId(postId int64) error {
+	postContent := &dbr.PostContent{}
+	return postContent.DeleteByPostId(s.db, postId)
+}
+
 func (s *tweetManageSrv) DeletePostStar(p *ms.PostStar) error {
 	return p.Delete(s.db)
 }

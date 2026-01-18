@@ -11,7 +11,7 @@
                             class="username-link"
                             :to="{
                                 name: 'user',
-                                query: { s: post.user.username },
+                                params: { username: post.user.username },
                             }"
                         >
                             {{ post.user.nickname }}
@@ -348,8 +348,8 @@ const handlePostCollection = () => {
 const goPostDetail = (id: number) => {
   router.push({
     name: 'post',
-    query: {
-      id,
+    params: {
+      id: String(id),
     },
   });
 };
@@ -370,8 +370,8 @@ const doClickText = (e: MouseEvent, id: number) => {
       } else {
         router.push({
           name: 'user',
-          query: {
-            s: d[1],
+          params: {
+            username: d[1],
           },
         });
       }
@@ -415,10 +415,13 @@ const doClickText = (e: MouseEvent, id: number) => {
         }
     }
     .post-text {
-        text-align: justify;
         overflow: hidden;
-        white-space: pre-wrap;
-        word-break: break-all;
+        word-wrap: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.5;
+        max-height: 3em;
     }
 
     .opt-item {

@@ -316,7 +316,7 @@ func (s *privSrv) CreateTweet(req *web.CreateTweetReq) (_ *web.CreateTweetResp, 
 				SenderUserID:   req.User.ID,
 				ReceiverUserID: user.ID,
 				Type:           ms.MsgTypePost,
-				Brief:          "在新发布的泡泡动态中@了你",
+				Brief:          "在新发布的话题动态中@了你",
 				PostID:         post.ID,
 			})
 		}
@@ -358,13 +358,96 @@ func (s *privSrv) DeleteTweet(req *web.DeleteTweetReq) error {
 	s.DeleteSearchPost(post)
 	if err != nil {
 		logrus.Errorf("s.DeleteSearchPost failed: %s", err)
-		return web.ErrDeletePostFailed
+		return err
 	}
 	// 缓存处理
 	// TODO: 缓存逻辑合并处理
 	onTrendsActionEvent(_trendsActionDeleteTweet, req.User.ID)
 	onTweetActionEvent(_tweetActionDelete, req.User.ID, req.User.Username)
 	return nil
+}
+
+func (s *privSrv) UpdateTweet(req *web.UpdateTweetReq) (*web.UpdateTweetResp, error) {
+	if req.User == nil {
+		return nil, web.ErrNoPermission
+	}
+	// 获取原帖子
+	post, err := s.Ds.GetPostByID(req.ID)
+	if err != nil {
+		logrus.Errorf("Ds.GetPostByID err: %s", err)
+		return nil, web.ErrGetPostFailed
+	}
+	// 检查权限：只有作者或管理员可以编辑
+	if post.UserID != req.User.ID && !req.User.IsAdmin {
+		return nil, web.ErrNoPermission
+	}
+
+	// 获取旧的内容
+	contents, err := s.Ds.GetPostContentsByIDs([]int64{req.ID})
+	if err != nil {
+		logrus.Errorf("Ds.GetPostContentsByIDs err: %s", err)
+		return nil, web.ErrUpdatePostFailed
+	}
+	
+	// 收集旧的媒体文件路径
+	oldMediaContents := make([]string, 0)
+	for _, content := range contents {
+		if content.Type == ms.ContentTypeImage || content.Type == ms.ContentTypeVideo || 
+		   content.Type == ms.ContentTypeAttachment || content.Type == ms.ContentTypeChargeAttachment {
+			oldMediaContents = append(oldMediaContents, content.Content)
+		}
+	}
+
+	// 处理新的媒体内容
+	var newMediaContents []string
+	defer func() {
+		if err != nil {
+			deleteOssObjects(s.oss, newMediaContents)
+		}
+	}()
+
+	processedContents, err := persistMediaContents(s.oss, req.Contents)
+	if err != nil {
+		return nil, web.ErrUpdatePostFailed
+	}
+	newMediaContents = processedContents
+
+	// 删除旧内容
+	if err = s.Ds.DeletePostContentByPostId(req.ID); err != nil {
+		logrus.Errorf("Ds.DeletePostContentByPostId err: %s", err)
+		return nil, web.ErrUpdatePostFailed
+	}
+
+	// 创建新内容
+	for _, item := range req.Contents {
+		postContent := &ms.PostContent{
+			PostID:  post.ID,
+			UserID:  post.UserID,
+			Content: item.Content,
+			Type:    item.Type,
+			Sort:    item.Sort,
+		}
+		if _, err = s.Ds.CreatePostContent(postContent); err != nil {
+			logrus.Errorf("Ds.CreatePostContent err: %s", err)
+			return nil, web.ErrUpdatePostFailed
+		}
+	}
+
+	// 删除旧的媒体文件
+	deleteOssObjects(s.oss, oldMediaContents)
+
+	// 更新搜索索引
+	s.PushPostToSearch(post)
+	
+	// 格式化返回数据
+	formatedPosts, err := s.Ds.RevampPosts([]*ms.PostFormated{post.Format()})
+	if err != nil {
+		logrus.Errorf("Ds.RevampPosts err: %s", err)
+		return nil, web.ErrUpdatePostFailed
+	}
+
+	// 返回更新后的帖子
+	return (*web.UpdateTweetResp)(formatedPosts[0]), nil
 }
 
 func (s *privSrv) DeleteCommentReply(req *web.DeleteCommentReplyReq) error {
@@ -431,7 +514,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.Cre
 			SenderUserID:   req.Uid,
 			ReceiverUserID: commentMaster.ID,
 			Type:           ms.MsgTypeReply,
-			Brief:          "在泡泡评论下回复了你",
+			Brief:          "在话题评论下回复了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 			ReplyID:        reply.ID,
@@ -443,7 +526,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.Cre
 			SenderUserID:   req.Uid,
 			ReceiverUserID: postMaster.ID,
 			Type:           ms.MsgTypeReply,
-			Brief:          "在泡泡评论下发布了新回复",
+			Brief:          "在话题评论下发布了新回复",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 			ReplyID:        reply.ID,
@@ -457,7 +540,7 @@ func (s *privSrv) CreateCommentReply(req *web.CreateCommentReplyReq) (_ *web.Cre
 				SenderUserID:   req.Uid,
 				ReceiverUserID: user.ID,
 				Type:           ms.MsgTypeReply,
-				Brief:          "在泡泡评论的回复中@了你",
+				Brief:          "在话题评论的回复中@了你",
 				PostID:         post.ID,
 				CommentID:      comment.ID,
 				ReplyID:        reply.ID,
@@ -582,7 +665,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 			SenderUserID:   req.Uid,
 			ReceiverUserID: postMaster.ID,
 			Type:           ms.MsgtypeComment,
-			Brief:          "在泡泡中评论了你",
+			Brief:          "在话题中评论了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 		})
@@ -598,7 +681,7 @@ func (s *privSrv) CreateComment(req *web.CreateCommentReq) (_ *web.CreateComment
 			SenderUserID:   req.Uid,
 			ReceiverUserID: user.ID,
 			Type:           ms.MsgtypeComment,
-			Brief:          "在泡泡评论中@了你",
+			Brief:          "在话题评论中@了你",
 			PostID:         post.ID,
 			CommentID:      comment.ID,
 		})

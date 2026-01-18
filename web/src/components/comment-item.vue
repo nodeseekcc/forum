@@ -11,7 +11,7 @@
                         class="username-link"
                         :to="{
                             name: 'user',
-                            query: { s: comment.user.username },
+                            params: { username: comment.user.username },
                         }"
                     >
                         {{ comment.user.nickname }}
@@ -88,13 +88,15 @@
                 </div>
             </template>
             <template #description v-if="comment.texts.length > 0">
-                <span
-                    v-for="content in comment.texts"
-                    :key="content.id"
-                    class="comment-text"
-                    @click.stop="doClickText($event, comment.id)"
-                    v-html="parsePostTag(content.content).content"
-                ></span>
+                <div @click.stop="doClickText($event, comment.id)">
+                    <MdPreview
+                        v-for="content in comment.texts"
+                        :key="content.id"
+                        :model-value="content.content"
+                        :theme="store.state.theme === 'dark' ? 'dark' : 'light'"
+                        class="comment-text"
+                    />
+                </div>
             </template>
 
             <template #footer>
@@ -131,6 +133,7 @@ import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { parsePostTag } from '@/utils/content';
+import { MdPreview } from 'md-editor-v3';
 import { Trash, ArrowBarToUp, ArrowBarDown } from '@vicons/tabler';
 import { deleteComment, highlightComment } from '@/api/post';
 import { YesNoEnum } from '@/utils/IEnum';
@@ -182,8 +185,8 @@ const doClickText = (e: MouseEvent, id: number | string) => {
       } else {
         router.push({
           name: 'user',
-          query: {
-            s: d[1],
+          params: {
+            username: d[1],
           },
         });
       }
@@ -261,10 +264,25 @@ const execHightlightAction = () => {
     }
     .comment-text {
         display: block;
-        text-align: justify;
-        overflow: hidden;
-        white-space: pre-wrap;
-        word-break: break-all;
+        word-wrap: break-word;
+        
+        // md-editor-v3 样式覆盖
+        :deep(.md-editor) {
+            padding: 0;
+            margin: 0;
+            background: transparent !important;
+            background-color: transparent !important;
+            --md-bk-color: transparent;
+            border: none;
+        }
+        :deep(.md-editor-preview-wrapper) {
+            padding: 0;
+            background: transparent !important;
+        }
+        :deep(.md-editor-preview) {
+            font-size: 14px;
+            background: transparent !important;
+        }
     }
     .opt-item {
         display: flex;

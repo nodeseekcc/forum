@@ -16,8 +16,8 @@
                     <span class="nickname" v-if="(message.type !=4 && message.sender_user.id > 0) || isWhisperReceiver">
                         <router-link @click.stop class="username-link" :to="{
                             name: 'user',
-                            query: {
-                                s: message.sender_user.username,
+                            params: {
+                                username: message.sender_user.username,
                             },
                         }">
                             {{ message.sender_user.nickname }}
@@ -29,8 +29,8 @@
                     <span class="nickname" v-else-if="isWhisperSender">
                         <router-link @click.stop class="username-link" :to="{
                             name: 'user',
-                            query: {
-                                s: message.receiver_user.username,
+                            params: {
+                                username: message.receiver_user.username,
                             },
                         }">
                             {{ message.receiver_user.nickname }}
@@ -316,8 +316,8 @@ const viewDetail = (message: Item.MessageProps) => {
     if (message.post && message.post.id > 0) {
       router.push({
         name: 'post',
-        query: {
-          id: message.post_id,
+        params: {
+          id: String(message.post_id),
         },
       });
     } else {

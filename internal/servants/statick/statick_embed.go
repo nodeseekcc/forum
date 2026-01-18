@@ -16,16 +16,39 @@ import (
 
 // RegisterWebStatick register web static assets route
 func RegisterWebStatick(e *gin.Engine) {
-	routeWebStatic(e, "/", "/index.html", "/favicon.ico", "/logo.png", "/sw.js", "/manifest.json", "/assets/*filepath")
-}
-
-func routeWebStatic(e *gin.Engine, paths ...string) {
-	staticHandler := http.FileServer(web.NewFileSystem())
-	handler := func(c *gin.Context) {
+	// Serve specific static files
+	fs := web.NewFileSystem()
+	staticHandler := http.FileServer(fs)
+	
+	// Serve static assets
+	e.GET("/assets/*filepath", func(c *gin.Context) {
 		staticHandler.ServeHTTP(c.Writer, c.Request)
+	})
+	
+	// Serve specific files
+	specificFiles := []string{"/favicon.ico", "/logo.png", "/sw.js", "/manifest.json"}
+	for _, path := range specificFiles {
+		e.GET(path, func(c *gin.Context) {
+			staticHandler.ServeHTTP(c.Writer, c.Request)
+		})
+		e.HEAD(path, func(c *gin.Context) {
+			staticHandler.ServeHTTP(c.Writer, c.Request)
+		})
 	}
-	for _, path := range paths {
-		e.GET(path, handler)
-		e.HEAD(path, handler)
-	}
+	
+	// Serve index.html for all other routes (SPA fallback)
+	e.NoRoute(func(c *gin.Context) {
+		// Check if it's an API request
+		if len(c.Request.URL.Path) >= 4 && c.Request.URL.Path[:4] == "/v1/" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"code": 404,
+				"msg":  "API Not Found",
+			})
+			return
+		}
+		
+		// Serve index.html for SPA routes
+		c.Request.URL.Path = "/"
+		staticHandler.ServeHTTP(c.Writer, c.Request)
+	})
 }

@@ -11,7 +11,7 @@
                         class="username-link"
                         :to="{
                             name: 'user',
-                            query: { s: contact.username },
+                            params: { username: contact.username },
                         }"
                     >
                         {{ contact.nickname }}

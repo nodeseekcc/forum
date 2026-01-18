@@ -47,6 +47,7 @@ var (
 	RedisCacheIndexSetting  *redisCacheIndexConf
 	SmsJuheSetting          *smsJuheConf
 	AlipaySetting           *alipayConf
+	TurnstileSetting        *turnstileConf
 	TweetSearchSetting      *tweetSearchConf
 	ZincSetting             *zincConf
 	MeiliSetting            *meiliConf
@@ -96,6 +97,7 @@ func setupSetting(suite []string, noDefault bool) error {
 		"RedisCacheIndex":   &RedisCacheIndexSetting,
 		"Alipay":            &AlipaySetting,
 		"SmsJuhe":           &SmsJuheSetting,
+		"Turnstile":         &TurnstileSetting,
 		"Pyroscope":         &PyroscopeSetting,
 		"Sentry":            &sentrySetting,
 		"Logger":            &loggerSetting,
@@ -168,8 +170,8 @@ func GetOssDomain() string {
 		if !S3Setting.Secure {
 			uri = "http://"
 		}
-		// TODO: will not work well need test in real world
-		return uri + S3Setting.Domain + "/" + S3Setting.Bucket + "/"
+		// For custom domain (like Cloudflare R2), domain is already bound to bucket
+		return uri + S3Setting.Domain + "/"
 	} else if cfg.If("LocalOSS") {
 		if !LocalOSSSetting.Secure {
 			uri = "http://"

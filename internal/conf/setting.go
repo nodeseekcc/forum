@@ -183,6 +183,12 @@ type smsJuheConf struct {
 	TplVal  string
 }
 
+type turnstileConf struct {
+	SiteKey   string
+	SecretKey string
+	Enabled   bool
+}
+
 type tweetSearchConf struct {
 	MaxUpdateQPS int
 	MinWorker    int

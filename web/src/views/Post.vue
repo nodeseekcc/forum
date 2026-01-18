@@ -1,6 +1,6 @@
 <template>
     <div>
-        <main-nav title="泡泡详情" :back="true" />
+        <main-nav title="话题详情" :back="true" />
 
         <n-list class="main-content-wrap" bordered>
             <n-list-item>
@@ -69,7 +69,7 @@ const post = ref<Item.PostProps>({} as Item.PostProps);
 const loading = ref(false);
 const commentLoading = ref(false);
 const comments = ref<Item.CommentProps[]>([]);
-const postId = computed(() => +(route.query.id as string));
+const postId = computed(() => +(route.params.id as string));
 const sortStrategy = ref<'default' | 'hots' | 'newest'>('default');
 const defaultCommentsSort = ref<boolean>(true);
 const pageSize = 20;

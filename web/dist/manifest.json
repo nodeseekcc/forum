@@ -1,7 +1,7 @@
 {
-  "short_name": "泡泡",
-  "name": "泡泡",
-  "description": "一个清新文艺的微社区",
+  "short_name": "NS",
+  "name": "NodeSeek",
+  "description": "A place for lovely people who love web development, hosting, vps / server and other geek things",
   "icons": [
     {
       "src": "/logo.png",

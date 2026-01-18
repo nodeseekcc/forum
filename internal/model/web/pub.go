@@ -16,8 +16,9 @@ type SendCaptchaReq struct {
 }
 
 type LoginReq struct {
-	Username string `json:"username" form:"username" binding:"required"`
-	Password string `json:"password" form:"password" binding:"required"`
+	Username       string `json:"username" form:"username" binding:"required"`
+	Password       string `json:"password" form:"password" binding:"required"`
+	TurnstileToken string `json:"turnstile_token" form:"turnstile_token"`
 }
 
 type LoginResp struct {
@@ -25,8 +26,9 @@ type LoginResp struct {
 }
 
 type RegisterReq struct {
-	Username string `json:"username" form:"username" binding:"required"`
-	Password string `json:"password" form:"password" binding:"required"`
+	Username       string `json:"username" form:"username" binding:"required"`
+	Password       string `json:"password" form:"password" binding:"required"`
+	TurnstileToken string `json:"turnstile_token" form:"turnstile_token"`
 }
 
 type RegisterResp struct {

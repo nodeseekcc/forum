@@ -40,7 +40,7 @@ export default createStore({
       copyrightTop: '2023 paopao.info',
       copyrightLeft: "Roc's Me",
       copyrightLeftLink: '',
-      copyrightRight: '泡泡(PaoPao)开源社区',
+      copyrightRight: '话题(PaoPao)开源社区',
       copyrightRightLink: 'https://www.paopao.info',
     },
   },

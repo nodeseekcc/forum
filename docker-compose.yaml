@@ -1,5 +1,3 @@
-version: '3.1'
-
 services:
   db:
     image: mysql:${MYSQL_TAG:-8.0}
@@ -123,22 +121,23 @@ services:
   #   networks:
   #     - paopao-network
 
-  backend:
-    image: bitbus/paopao-ce:${PAOPAOCE_TAG:-0.6-alpha}
-    restart: always
-    depends_on:
-      - db
-      - redis
-      - meili
-    # modify below to reflect your custom configure
-    volumes:
-      - ./config.yaml.sample:/app/paopao-ce/config.yaml
-      - ./custom:/app/paopao-ce/custom
-    ports:
-      - 8008:8008
-    networks:
-      - paopao-network
+  # backend:
+  #   image: bitbus/paopao-ce:${PAOPAOCE_TAG:-0.6-alpha}
+  #   restart: always
+  #   depends_on:
+  #     - db
+  #     - redis
+  #     - meili
+  #   # modify below to reflect your custom configure
+  #   volumes:
+  #     - ./config.yaml:/app/paopao-ce/config.yaml
+  #     - ./custom:/app/paopao-ce/custom
+  #   ports:
+  #     - 8008:8008
+  #   networks:
+  #     - paopao-network
 
 networks:
   paopao-network:
       driver: bridge
+

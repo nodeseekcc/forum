@@ -87,11 +87,11 @@
         </n-list>
 
         <n-space v-if="totalPage > 0" justify="center">
-            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多泡泡了', error: '加载出错' }" @infinite="nextPage()">
+            <InfiniteLoading class="load-more" :slots="{ complete: '没有更多话题了', error: '加载出错' }" @infinite="nextPage()">
                 <template #spinner>
                     <div class="load-more-wrap">
                         <n-spin :size="14" v-if="!noMore" />
-                        <span class="load-more-spinner">{{ noMore ? '没有更多泡泡了' : '加载更多' }}</span>
+                        <span class="load-more-spinner">{{ noMore ? '没有更多话题了' : '加载更多' }}</span>
                     </div>
                 </template>
             </InfiniteLoading>
@@ -181,7 +181,7 @@ const user = reactive<Item.UserInfo>({
 });
 const inActionPost = ref<Item.PostProps | null>(null);
 
-const title = ref<string>('泡泡广场');
+const title = ref<string>('首页');
 const loading = ref(false);
 const noMore = ref(false);
 const targetStyle = ref<number>(1);
@@ -301,7 +301,7 @@ function postFollowAction(userId: number, isFollowing: boolean) {
 }
 
 const updateTitle = () => {
-  title.value = '泡泡广场';
+  title.value = '首页';
   if (route.query && route.query.q) {
     if (route.query.t && route.query.t === 'tag') {
       title.value = '#' + decodeURIComponent(route.query.q as string);
@@ -465,8 +465,8 @@ const onPostSuccess = (post: Item.PostProps) => {
   // 暂时统统跳到详情页面，后续再精细化分场景优化
   router.push({
     name: 'post',
-    query: {
-      id: post.id,
+    params: {
+      id: String(post.id),
     },
   });
   // // 如果不在第一页，需要跳转到详情页面

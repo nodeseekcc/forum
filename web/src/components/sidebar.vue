@@ -2,6 +2,7 @@
     <div class="sidebar-wrap">
         <div class="logo-wrap">
             <n-image class="logo-img" width="36" :src="LOGO" :preview-disabled="true" @click="goHome" />
+            <span class="logo-text" @click="goHome">NodeSeek</span>
         </div>
         <n-menu :accordion="true" :icon-size="24" :options="menuOptions" :render-label="renderMenuLabel"
             :render-icon="renderMenuIcon" :value="selectedPath" @update:value="goRouter" />
@@ -125,16 +126,16 @@ onMounted(() => {
 const menuOptions = computed(() => {
   const options = [
     {
-      label: '广场',
+      label: '首页',
       key: 'home',
       icon: () => h(HomeOutline),
       href: '/',
     },
     {
       label: '话题',
-      key: 'topic',
+      key: 'topics',
       icon: () => h(Hash),
-      href: '/topic',
+      href: '/topics',
     },
   ];
   if (enableAnnoucement) {
@@ -146,7 +147,7 @@ const menuOptions = computed(() => {
     });
   }
   options.push({
-    label: '主页',
+    label: '我的',
     key: 'profile',
     icon: () => h(LeafOutline),
     href: '/profile',
@@ -190,16 +191,16 @@ const menuOptions = computed(() => {
     ? options
     : [
         {
-          label: '广场',
+          label: '首页',
           key: 'home',
           icon: () => h(HomeOutline),
           href: '/',
         },
         {
           label: '话题',
-          key: 'topic',
+          key: 'topics',
           icon: () => h(Hash),
-          href: '/topic',
+          href: '/topics',
         },
       ];
 });
@@ -239,12 +240,16 @@ const renderMenuIcon = (option: AnyObject) => {
 
 const goRouter = (name: string, item: any = {}) => {
   selectedPath.value = name;
-  router.push({
-    name,
-    query: {
-      t: new Date().getTime(),
-    },
-  });
+  const option = menuOptions.value.find(opt => opt.key === name);
+  if (option && option.href) {
+    router.push({
+      path: option.href,
+    });
+  } else {
+    router.push({
+      name,
+    });
+  }
 };
 const goHome = () => {
   if (route.path === '/') {
@@ -293,6 +298,7 @@ window.$message = useMessage();
     .logo-wrap {
         display: flex;
         justify-content: flex-start;
+        align-items: center;
         margin-bottom: 12px;
 
         .logo-img {
@@ -302,13 +308,22 @@ window.$message = useMessage();
                 cursor: pointer;
             }
         }
+
+        .logo-text {
+            margin-left: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            cursor: pointer;
+            user-select: none;
+        }
     }
 
     .user-wrap {
         display: flex;
         align-items: center;
         position: absolute;
-        bottom: 12px;
+        bottom: 24px;
         left: 12px;
         right: 12px;
 

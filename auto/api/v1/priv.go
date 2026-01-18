@@ -38,6 +38,7 @@ type Priv interface {
 	CollectionTweet(*web.CollectionTweetReq) (*web.CollectionTweetResp, error)
 	StarTweet(*web.StarTweetReq) (*web.StarTweetResp, error)
 	DeleteTweet(*web.DeleteTweetReq) error
+	UpdateTweet(*web.UpdateTweetReq) (*web.UpdateTweetResp, error)
 	CreateTweet(*web.CreateTweetReq) (*web.CreateTweetResp, error)
 	DownloadAttachment(*web.DownloadAttachmentReq) (*web.DownloadAttachmentResp, error)
 	DownloadAttachmentPrecheck(*web.DownloadAttachmentPrecheckReq) (*web.DownloadAttachmentPrecheckResp, error)
@@ -339,6 +340,26 @@ func RegisterPrivServant(e *gin.Engine, s Priv, m ...PrivChain) {
 		}
 		s.Render(c, nil, s.DeleteTweet(req))
 	})
+	router.Handle("PUT", "post", func(c *gin.Context) {
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+		}
+		req := new(web.UpdateTweetReq)
+		var bv _binding_ = req
+		if err := bv.Bind(c); err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		resp, err := s.UpdateTweet(req)
+		if err != nil {
+			s.Render(c, nil, err)
+			return
+		}
+		var rv _render_ = resp
+		rv.Render(c)
+	})
 	router.Handle("POST", "post", append(cc.ChainCreateTweet(), func(c *gin.Context) {
 		select {
 		case <-c.Request.Context().Done():
@@ -491,6 +512,10 @@ func (UnimplementedPrivServant) StarTweet(req *web.StarTweetReq) (*web.StarTweet
 
 func (UnimplementedPrivServant) DeleteTweet(req *web.DeleteTweetReq) error {
 	return mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
+}
+
+func (UnimplementedPrivServant) UpdateTweet(req *web.UpdateTweetReq) (*web.UpdateTweetResp, error) {
+	return nil, mir.Errorln(http.StatusNotImplemented, http.StatusText(http.StatusNotImplemented))
 }
 
 func (UnimplementedPrivServant) CreateTweet(req *web.CreateTweetReq) (*web.CreateTweetResp, error) {

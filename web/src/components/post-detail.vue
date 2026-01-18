@@ -10,7 +10,7 @@
                     class="username-link"
                     :to="{
                         name: 'user',
-                        query: { s: post.user.username },
+                        params: { username: post.user.username },
                     }"
                 >
                     {{ post.user.nickname }}
@@ -69,7 +69,7 @@
                     :mask-closable="false"
                     preset="dialog"
                     title="提示"
-                    content="确定删除该泡泡动态吗？"
+                    content="确定删除该话题动态吗？"
                     positive-text="确认"
                     negative-text="取消"
                     @positive-click="execDelAction"
@@ -83,7 +83,7 @@
                     :content="
                         '确定' +
                         (post.is_lock ? '解锁' : '锁定') +
-                        '该泡泡动态吗？'
+                        '该话题动态吗？'
                     "
                     positive-text="确认"
                     negative-text="取消"
@@ -98,7 +98,7 @@
                     :content="
                         '确定' +
                         (post.is_top ? '取消置顶' : '置顶') +
-                        '该泡泡动态吗？'
+                        '该话题动态吗？'
                     "
                     positive-text="确认"
                     negative-text="取消"
@@ -111,7 +111,7 @@
                     preset="dialog"
                     title="提示"
                     :content="
-                        '确定将该泡泡动态' +
+                        '确定将该话题动态' +
                         (post.is_essence ? '取消亮点' : '设为亮点') +
                         '吗？'
                     "
@@ -126,7 +126,7 @@
                     preset="dialog"
                     title="提示"
                     :content="
-                        '确定将该泡泡动态可见度修改为' +
+                        '确定将该话题动态可见度修改为' +
                         (tempVisibility == 0 ? '公开' : (tempVisibility == 1 ? '私密' : (tempVisibility == 2 ? '好友可见' : '关注可见'))) +
                         '吗？'
                     "
@@ -137,15 +137,14 @@
                   <!-- 私信组件 -->
                 <whisper :show="showWhisper" :user="whisperReceiver" @success="whisperSuccess" />
             </template>
-            <div v-if="post.texts.length > 0">
-                <span
+            <div v-if="post.texts.length > 0" @click.stop="doClickText($event, post.id)">
+                <MdPreview
                     v-for="content in post.texts"
                     :key="content.id"
+                    :model-value="content.content"
+                    :theme="store.state.theme === 'dark' ? 'dark' : 'light'"
                     class="post-text"
-                    @click.stop="doClickText($event, post.id)"
-                    v-html="parsePostTag(content.content).content"
-                >
-                </span>
+                />
             </div>
 
             <template #footer>
@@ -222,6 +221,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { formatPrettyTime } from '@/utils/formatTime';
 import { parsePostTag } from '@/utils/content';
+import { MdPreview } from 'md-editor-v3';
 import {
   PaperPlaneOutline,
   Heart,
@@ -232,6 +232,7 @@ import {
   ChatboxOutline,
   PushOutline,
   TrashOutline,
+  CreateOutline,
   LockClosedOutline,
   LockOpenOutline,
   EyeOutline,
@@ -248,6 +249,7 @@ import {
   getPostCollection,
   postCollection,
   deletePost,
+  updatePost,
   lockPost,
   stickPost,
   highlightPost,
@@ -385,6 +387,11 @@ const adminOptions = computed(() => {
     return options;
   }
   options.push({
+    label: '编辑',
+    key: 'edit',
+    icon: renderIcon(CreateOutline),
+  });
+  options.push({
     label: '删除',
     key: 'delete',
     icon: renderIcon(TrashOutline),
@@ -521,8 +528,8 @@ const onHandleFollowAction = (post: Item.PostProps) => {
 const goPostDetail = (id: number) => {
   router.push({
     name: 'post',
-    query: {
-      id,
+    params: {
+      id: String(id),
     },
   });
 };
@@ -542,8 +549,8 @@ const doClickText = (e: MouseEvent, id: number) => {
       } else {
         router.push({
           name: 'user',
-          query: {
-            s: d[1],
+          params: {
+            username: d[1],
           },
         });
       }
@@ -557,6 +564,7 @@ const handlePostAction = (
     | 'whisper'
     | 'follow'
     | 'unfollow'
+    | 'edit'
     | 'delete'
     | 'lock'
     | 'unlock'
@@ -576,6 +584,12 @@ const handlePostAction = (
     case 'follow':
     case 'unfollow':
       onHandleFollowAction(props.post);
+      break;
+    case 'edit':
+      router.push({
+        name: 'editPost',
+        params: { id: String(props.post.id) }
+      });
       break;
     case 'delete':
       showDelModal.value = true;
@@ -790,10 +804,25 @@ onMounted(() => {
     }
     .post-text {
         font-size: 16px;
-        text-align: justify;
-        overflow: hidden;
-        white-space: pre-wrap;
-        word-break: break-all;
+        word-wrap: break-word;
+        
+        // md-editor-v3 样式覆盖
+        :deep(.md-editor) {
+            padding: 0;
+            margin: 0;
+            background: transparent !important;
+            background-color: transparent !important;
+            --md-bk-color: transparent;
+            border: none;
+        }
+        :deep(.md-editor-preview-wrapper) {
+            padding: 0;
+            background: transparent !important;
+        }
+        :deep(.md-editor-preview) {
+            font-size: 16px;
+            background: transparent !important;
+        }
     }
     .opts-wrap {
         margin-top: 20px;

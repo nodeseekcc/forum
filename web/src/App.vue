@@ -71,4 +71,35 @@ onMounted(() => {
 
 <style lang="less">
 @import '@/assets/css/main.less';
+@import 'md-editor-v3/lib/style.css';
+
+// 覆盖 md-editor-v3 的背景色
+.md-editor {
+  --md-bk-color: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.md-editor-preview-wrapper,
+.md-editor-preview {
+  background-color: transparent !important;
+}
+
+// 修复下拉菜单的z-index和背景
+.md-editor-dropdown,
+.md-editor-modal-container {
+  z-index: 9999 !important;
+}
+
+.md-editor-dropdown-overlay {
+  background-color: #fff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dark {
+  .md-editor-dropdown-overlay {
+    background-color: #18181c !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  }
+}
 </style>

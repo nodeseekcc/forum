@@ -1,6 +1,18 @@
 :root {
     // 如果要变更中间栏的大小，修改此处即可
-    --content-main: 620px;
+    --content-main: 960px;
+}
+
+@media screen and (max-width: 1440px) {
+    :root {
+        --content-main: 720px;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    :root {
+        --content-main: 600px;
+    }
 }
 
 .app-container {
