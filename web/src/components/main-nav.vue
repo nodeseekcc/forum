@@ -39,7 +39,13 @@
                     </template>
                 </n-button>
 
-                {{ props.title }}
+                <div v-if="store.state.drawerModelShow && props.title === '首页'" class="logo-title">
+                    <img src="/logo.png" class="logo-img" alt="logo" />
+                    <span class="logo-text">NodeSeek</span>
+                </div>
+                <template v-else>
+                    {{ props.title }}
+                </template>
 
                 <n-switch
                     v-if="props.theme"
@@ -143,6 +149,22 @@ onMounted(() => {
         .drawer-btn, 
         .back-btn {
             margin-right: 8px;
+        }
+
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .logo-img {
+                width: 24px;
+                height: 24px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+                font-weight: 600;
+            }
         }
 
         .theme-switch-wrap {

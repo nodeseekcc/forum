@@ -34,4 +34,5 @@ type RegisterReq struct {
 type RegisterResp struct {
 	UserId   int64  `json:"id"`
 	Username string `json:"username"`
+	Token    string `json:"token"`
 }

@@ -385,13 +385,7 @@ const handleRegister = (e: Event) => {
         turnstile_token: registerForm.turnstileToken,
       })
         .then((res) => {
-          return userLogin({
-            username: registerForm.username,
-            password: registerForm.password,
-            turnstile_token: registerForm.turnstileToken,
-          });
-        })
-        .then((res) => {
+          // 注册成功，后端已返回token，直接使用
           const token = res?.token || '';
           localStorage.setItem('PAOPAO_TOKEN', token);
           return userInfo(token);
@@ -408,6 +402,7 @@ const handleRegister = (e: Event) => {
           registerForm.turnstileToken = '';
         })
         .catch((err) => {
+          // 注册失败
           loading.value = false;
           cleanupRegisterTurnstile();
           initRegisterTurnstile();

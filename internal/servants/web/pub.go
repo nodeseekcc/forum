@@ -125,9 +125,18 @@ func (s *pubSrv) Register(req *web.RegisterReq) (*web.RegisterResp, error) {
 		logrus.Errorf("Ds.CreateUser err: %s", err)
 		return nil, web.ErrUserRegisterFailed
 	}
+	
+	// 注册成功后直接生成登录token
+	token, err := app.GenerateToken(user)
+	if err != nil {
+		logrus.Errorf("app.GenerateToken err: %v", err)
+		return nil, web.ErrUserRegisterFailed
+	}
+	
 	return &web.RegisterResp{
 		UserId:   user.ID,
 		Username: user.Username,
+		Token:    token,
 	}, nil
 }
 
